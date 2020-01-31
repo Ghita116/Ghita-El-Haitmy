@@ -1,0 +1,70 @@
+import tweepy
+from textblob import TextBlob
+import nltk
+import numpy as np
+import re
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import axes3d
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
+auth = tweepy.OAuthHandler('cDfT3GxWUfU6NrEa6edyGlHMG', '50iAplQIi2q5HvpCK9kGT0ukff0RnBug9Wup3fcuZCocjGUjyE')
+auth.set_access_token('1177191917798547456-hVHfvt69DPTCBfiKUiNpjMadt4xRdO', 'F5dwRMl0ablYeT5CvbGBFanrlZyGNr6jhfkntkqytZ8Pc')
+api = tweepy.API(auth, wait_on_rate_limit=True)
+public_tweets = api.home_timeline
+date_since = "2020-01-01"
+search_term = "#Tesla+stock"
+tweets = tweepy.Cursor(api.search, search_term,lang="en", since= date_since).items(30)
+tweetsDic={}
+pop_list = []
+sub_list = []
+VP_list = []
+for tweet in tweets:
+  tweetsDic[tweet.user.followers_count]=a 
+  a = tweet.text
+  a = re.sub("http.+", " " , a)
+  #print(a)
+         #Textblob
+  read = TextBlob(a)
+  polarity = np.array([read.sentiment.polarity])
+  subjectivity = np.array([read.sentiment.subjectivity]
+          #Vader
+  VaderPolarity = SentimentIntensityAnalyzer()
+  VP = np.array(VaderPolarity.polarity_scores(a)['compound'])
+  def sentiment0():
+    if VP >= 0.05:
+      return 'Vader positive sentiment'
+    elif VP > -0.05 and VP < 0.05:
+      return 'Vader neutral sentiment'
+    elif VP <= -0.05:
+      return 'Vader negative sentiment'
+  sentiment0()
+  pop_list.append(len(polarity))
+  #sub_list.append(len(subjectivity))
+  VP_list.append(len(str(VP)))
+  def sentiment1(): 
+    if  polarity ==0 and subjectivity ==0:
+      return 'Textblob Neutral' 
+    elif polarity > -0 or subjectivity > 1:
+      return 'Textblob Positive'
+    elif polarity < 0 or subjectivity < 1:
+      return 'Textblob Negative'
+    else:
+      return 'Not applicable'
+  sentiment1()
+  #print (VP, "_ {}".format(a, str(VP)))
+  #print (read.sentiment)
+polarity = np.reshape(polarity(4,4))
+X = np.expand_dims(VP, axis=0)
+Y = np.arange(polarity)
+D = np.expand_dims(subjectivity,axis=1)
+Z = np.sin(np.sqrt(D**2 + Y**2))
+Y, D = np.meshgrid(Y, D)
+fig = plt.figure()
+ax = plt.axes(projection='3d')
+#ax = axes3D(fig)
+ax.plot_surface(D, Y, Z, rstride=10, cstride=10,cmap='viridis', edgecolor='none',linewidth=0, antialiased=False)
+ax.set_title('T vs C')
+ax.set_xlabel('TP')
+ax.set_ylabel('TS')
+ax.set_zlabel('VaderC')
+plt.show()
